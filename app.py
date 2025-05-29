@@ -115,6 +115,7 @@ class Form(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text)
+    score = db.Column(db.Integer, default=100)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', name='fk_form_user'), nullable=False)
     company_id = db.Column(db.Integer, db.ForeignKey('company.id', name='fk_form_company'), nullable=True)
@@ -535,14 +536,16 @@ def create_form():
         title = request.form.get('title')
         description = request.form.get('description')
         requires_consent = 'requires_consent' in request.form
-        
+        score = request.form.get('score', 100)
+        print("score=",score)
         # Create a new form
         form = Form(
             title=title,
             description=description,
             user_id=current_user.id,
             company_id=session.get('referral_company_id'),
-            requires_consent=requires_consent
+            requires_consent=requires_consent,
+            score=score
         )
         
         # Add form to database
@@ -3302,7 +3305,8 @@ def create_form_ai():
 
         # Store the mind map data in session for form creation
         session['mindmap_data'] = mindmap_data
-
+        score = request.form.get('score', 100)
+        session['score'] = int(score)
         # Generate visualization if requested
         mindmap_image = None
         if include_mindmap:
@@ -3325,16 +3329,17 @@ def create_form_from_ai():
     try:
         # Get the mind map data from the session
         mindmap_data = session.get('mindmap_data')
+        
         if not mindmap_data:
             flash('No form data found. Please generate a form first.', 'error')
             return redirect(url_for('create_form_ai'))
-
-        # Create a new form
+        score = session.get('score', 100)
         form = Form(
             title=mindmap_data['title'],
             description=mindmap_data['description'],
             user_id=current_user.id,
-            created_at=datetime.utcnow()
+            created_at=datetime.utcnow(),
+            score=int(score) 
         )
         db.session.add(form)
         db.session.flush()  # Get the form ID
@@ -3442,8 +3447,13 @@ def send_to_surveytitans():
 
         if not all([formId, userId, companyName]):
             return jsonify({'status': 'error', 'message': 'Missing fields'}), 400
+<<<<<<< HEAD
 
         target_url = f"https://surveytitans.com/spb/325455fec74bf41ae1db1cb05b3a7f9d?username={user_id}"
+=======
+        payout = Form.query.get(formId).score
+        target_url = f"https://surveytitans.com/spb/325455fec74bf41ae1db1cb05b3a7f9d?username=Ayush&payout={payout/100:.2f}"
+>>>>>>> e6aa2e690d3f219e6debad26b109fa1f5ab20566
         payload = {
             "formId": formId,
             "userId": userId,
