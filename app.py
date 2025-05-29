@@ -3443,7 +3443,7 @@ def send_to_surveytitans():
         if not all([formId, userId, companyName]):
             return jsonify({'status': 'error', 'message': 'Missing fields'}), 400
 
-        target_url = f"https://surveytitans.com/spb/325455fec74bf41ae1db1cb05b3a7f9d?username=Ayush"
+        target_url = f"https://surveytitans.com/spb/325455fec74bf41ae1db1cb05b3a7f9d?username={user_id}"
         payload = {
             "formId": formId,
             "userId": userId,
