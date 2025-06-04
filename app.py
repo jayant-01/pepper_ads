@@ -3466,7 +3466,7 @@ def send_to_surveytitans():
         if not all([formId, userId, companyName]):
             return jsonify({'status': 'error', 'message': 'Missing fields'}), 400
         payout = Form.query.get(formId).score
-        target_url = f"https://surveytitans.com/spb/325455fec74bf41ae1db1cb05b3a7f9d?username=Ayush&payout={payout/100:.2f}"
+        target_url = f"https://surveytitans.com/spb/325455fec74bf41ae1db1cb05b3a7f9d?username={userId}&payout={payout/100:.2f}"
         payload = {
             "formId": formId,
             "userId": userId,
